@@ -1,0 +1,25 @@
+services:
+  db:
+    build: ./mysql
+    env_file: .env
+    environment:
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - MYSQL_DATABASE=${MYSQL_DATABASE}
+      - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+    ports:
+      - "3306:3306"
+
+  golang_app:
+    build:
+      context: ./golang
+      dockerfile: Dockerfile
+    tty: true
+    env_file: .env
+    volumes:
+    - ./.env:/app/.env
+    command: ./main ${COMMAND:-export}
+    depends_on:
+      - db
+    ports:
+    - "8080:8080"
