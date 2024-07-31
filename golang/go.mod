@@ -1,4 +1,4 @@
-module example.com/yourappname
+module db_assignment
 
 go 1.20
 
