@@ -1,6 +1,5 @@
 package main
 
-// 依存関係のインポート
 import (
 	"database/sql"
 	"db_assignment/handler"
@@ -20,15 +19,11 @@ func main() {
 		os.Exit(1)
 	}
 
-	// sys.argv[1]でコマンドライン引数を取得
-	// command := os.Args[1]
-
 	err := godotenv.Load()
 	if err != nil {
 		log.Fatal("Error loading .env file")
 	}
 
-	// ここでDB接続情報を環境変数から取得
 	dbUser := os.Getenv("MYSQL_USER")
 	dbPass := os.Getenv("MYSQL_PASSWORD")
 	dbName := os.Getenv("MYSQL_DATABASE")
@@ -54,7 +49,6 @@ func main() {
 	}
 	defer db.Close()
 
-	// テーブルを作成するSQLクエリ(テーブルが存在しない場合のみ実行)ついでに実行(exec)
 	_, err = db.Exec(`
     CREATE TABLE IF NOT EXISTS User (
         id INT AUTO_INCREMENT PRIMARY KEY,

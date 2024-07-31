@@ -3,16 +3,15 @@ package usecase
 import (
 	"database/sql"
 	"db_assignment/domain"
-	"fmt"
 
 	"github.com/gin-gonic/gin"
 	_ "github.com/go-sql-driver/mysql"
 )
 
-func CreateUser(db *sql.DB, context *gin.Context) (string, error) {
+func CreateUser(db *sql.DB, context *gin.Context) {
 	state, err := db.Prepare("INSERT INTO User (name) VALUES(?)")
 	if err != nil {
-		return "", fmt.Errorf("can not prepare: %v", err)
+		context.JSON(400, err)
 	}
 	defer state.Close()
 
@@ -20,14 +19,14 @@ func CreateUser(db *sql.DB, context *gin.Context) (string, error) {
 
 	_, err = state.Exec(Name)
 	if err != nil {
-		return "", fmt.Errorf("クエリ実行エラー: %v", err)
+		context.JSON(400, err)
 	}
-	return "User created", err
+	context.JSON(200, gin.H{"message": "User created"})
 }
-func GetUser(db *sql.DB) ([]domain.User, error) {
+func GetUser(db *sql.DB, context *gin.Context) {
 	rows, err := db.Query("SELECT * FROM User")
 	if err != nil {
-		return nil, fmt.Errorf("can not prepare: %v", err)
+		context.JSON(400, err)
 	}
 	defer rows.Close()
 
@@ -36,44 +35,36 @@ func GetUser(db *sql.DB) ([]domain.User, error) {
 		var user domain.User
 		err := rows.Scan(&user.Id, &user.Name)
 		if err != nil {
-			return nil, fmt.Errorf("行のスキャンエラー: %v", err)
+			context.JSON(400, err)
 		}
 		users = append(users, user)
 	}
 
-	if err = rows.Err(); err != nil {
-		return nil, fmt.Errorf("行の反復中のエラー: %v", err)
-	}
-
-	return users, nil
+	context.JSON(200, users)
 }
-func GetUserId(db *sql.DB, context *gin.Context) ([]string, error) {
+func GetUserId(db *sql.DB, context *gin.Context) {
 
 	Name := context.Query("name")
 	rows, err := db.Query("SELECT id FROM User WHERE name = ?", Name)
 	if err != nil {
-		return nil, fmt.Errorf("can not prepare: %v", err)
+		context.JSON(400, err)
 	}
 	var IDs []string
 	for rows.Next() {
 		var id string
 		err := rows.Scan(&id)
 		if err != nil {
-			return nil, fmt.Errorf("行のスキャンエラー: %v", err)
+			context.JSON(400, err)
 		}
 		IDs = append(IDs, id)
 	}
 
-	if err = rows.Err(); err != nil {
-		return nil, fmt.Errorf("行の反復中のエラー: %v", err)
-	}
-
-	return IDs, nil
+	context.JSON(200, IDs)
 }
-func UpdateUser(db *sql.DB, context *gin.Context) (string, error) {
+func UpdateUser(db *sql.DB, context *gin.Context) {
 	state, err := db.Prepare("UPDATE User SET name = ? WHERE id = ?")
 	if err != nil {
-		return "", fmt.Errorf("can not prepare: %v", err)
+		context.JSON(400, err)
 	}
 	defer state.Close()
 
@@ -83,8 +74,8 @@ func UpdateUser(db *sql.DB, context *gin.Context) (string, error) {
 	_, err = state.Exec(Name, Id)
 
 	if err != nil {
-		return "", fmt.Errorf("クエリ実行エラー: %v", err)
+		context.JSON(400, err)
 	}
 
-	return "User Updated", nil
+	context.JSON(200, gin.H{"message": "User updated"})
 }

@@ -3,17 +3,16 @@ package usecase
 import (
 	"database/sql"
 	"db_assignment/domain"
-	"fmt"
 
 	"github.com/gin-gonic/gin"
 	_ "github.com/go-sql-driver/mysql"
 )
 
-func GetListReport(db *sql.DB, context *gin.Context) ([]domain.Report, error) {
+func GetListReport(db *sql.DB, context *gin.Context) {
 	userID := context.Query("id")
 	rows, err := db.Query("SELECT * FROM Report WHERE user_id = ?", userID)
 	if err != nil {
-		return nil, fmt.Errorf("クエリ実行エラー: %v", err)
+		context.JSON(400, err)
 	}
 	defer rows.Close()
 	var reports []domain.Report
@@ -21,24 +20,20 @@ func GetListReport(db *sql.DB, context *gin.Context) ([]domain.Report, error) {
 		var report domain.Report
 		err := rows.Scan(&report.Id, &report.User_id, &report.Title, &report.Character_counts, &report.Style, &report.Language)
 		if err != nil {
-			return nil, fmt.Errorf("行のスキャンエラー: %v", err)
+			context.JSON(400, err)
 		}
 		reports = append(reports, report)
 	}
 
-	if err = rows.Err(); err != nil {
-		return nil, fmt.Errorf("行の反復中のエラー: %v", err)
-	}
-
-	return reports, nil
+	context.JSON(200, reports)
 }
 
-func GetReport(db *sql.DB, context *gin.Context) ([]domain.Report, error) {
+func GetReport(db *sql.DB, context *gin.Context) {
 
 	Id := context.Query("id")
 	rows, err := db.Query("SELECT * FROM Report WHERE id = ?", Id)
 	if err != nil {
-		return nil, fmt.Errorf("can not Query: %v", err)
+		context.JSON(400, err)
 	}
 	defer rows.Close()
 
@@ -47,22 +42,18 @@ func GetReport(db *sql.DB, context *gin.Context) ([]domain.Report, error) {
 		var report domain.Report
 		err := rows.Scan(&report.Id, &report.User_id, &report.Title, &report.Character_counts, &report.Style, &report.Language)
 		if err != nil {
-			return nil, fmt.Errorf("行のスキャンエラー: %v", err)
+			context.JSON(400, err)
 		}
 		reports = append(reports, report)
 	}
 
-	if err = rows.Err(); err != nil {
-		return nil, fmt.Errorf("行の反復中のエラー: %v", err)
-	}
-
-	return reports, nil
+	context.JSON(200, reports)
 }
 
-func CreateReport(db *sql.DB, context *gin.Context) (string, error) {
+func CreateReport(db *sql.DB, context *gin.Context) {
 	state, err := db.Prepare("INSERT INTO Report (user_id, title, character_counts, style, language) VALUES (?, ?, ?, ?, ?)")
 	if err != nil {
-		return "", fmt.Errorf("can not prepare: %v", err)
+		context.JSON(400, err)
 	}
 	defer state.Close()
 
@@ -73,15 +64,15 @@ func CreateReport(db *sql.DB, context *gin.Context) (string, error) {
 	language := context.Query("language")
 	_, err = state.Exec(user_id, title, characterCounts, style, language)
 	if err != nil {
-		return "", fmt.Errorf("can not Exec: %v", err)
+		context.JSON(400, err)
 	}
-	return "report created", nil
+	context.JSON(200, gin.H{"message": "Report created"})
 }
 
-func UpdateReport(db *sql.DB, context *gin.Context) (string, error) {
+func UpdateReport(db *sql.DB, context *gin.Context) {
 	state, err := db.Prepare("UPDATE Report SET user_id = ?, title = ?, character_counts = ?, style = ?, language = ? WHERE id = ?")
 	if err != nil {
-		return "", fmt.Errorf("can not prepare: %v", err)
+		context.JSON(400, err)
 	}
 	defer state.Close()
 	id := context.Query("id")
@@ -93,18 +84,18 @@ func UpdateReport(db *sql.DB, context *gin.Context) (string, error) {
 	_, err = state.Exec(user_id, title, character_counts, style, language, id)
 
 	if err != nil {
-		return "", fmt.Errorf("クエリ実行エラー: %v", err)
+		context.JSON(400, err)
 	}
 
-	return "Report Updated", nil
+	context.JSON(200, gin.H{"message": "Report updated"})
 
 }
 
-func DeleteReport(db *sql.DB, context *gin.Context) (string, error) {
+func DeleteReport(db *sql.DB, context *gin.Context) {
 	state, err := db.Prepare("DELETE FROM Report WHERE id = ?")
 
 	if err != nil {
-		return "", fmt.Errorf("can not prepare: %v", err)
+		context.JSON(400, err)
 	}
 
 	defer state.Close()
@@ -113,8 +104,8 @@ func DeleteReport(db *sql.DB, context *gin.Context) (string, error) {
 	_, err = state.Exec(Id)
 
 	if err != nil {
-		return "", fmt.Errorf("クエリ実行エラー: %v", err)
+		context.JSON(400, err)
 	}
 
-	return "Report Deleted", nil
+	context.JSON(200, gin.H{"message": "Report deleted"})
 }

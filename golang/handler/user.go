@@ -8,18 +8,14 @@ import (
 )
 
 func CreateUserHandler(db *sql.DB, c *gin.Context) {
-	str, _ := usecase.CreateUser(db, c)
-	c.JSON(200, str)
+	usecase.CreateUser(db, c)
 }
 func GetUserHangler(db *sql.DB, c *gin.Context) {
-	str, _ := usecase.GetUser(db)
-	c.JSON(200, str)
+	usecase.GetUser(db, c)
 }
 func GetUserIdHandler(db *sql.DB, c *gin.Context) {
-	str, _ := usecase.GetUserId(db, c)
-	c.JSON(200, str)
+	usecase.GetUserId(db, c)
 }
 func UpdateUserHandler(db *sql.DB, c *gin.Context) {
-	str, _ := usecase.UpdateUser(db, c)
-	c.JSON(200, str)
+	usecase.UpdateUser(db, c)
 }

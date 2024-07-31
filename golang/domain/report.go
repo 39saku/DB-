@@ -1,9 +1,6 @@
 package domain
 
-import (
-	_ "github.com/go-sql-driver/mysql"
-)
-
+// 変数の頭文字を大文字にしないとScanできなくなる
 type Report struct {
 	Id               string `json:"id"`
 	User_id          string `json:"user_id"`
