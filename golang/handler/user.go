@@ -8,14 +8,34 @@ import (
 )
 
 func CreateUserHandler(db *sql.DB, c *gin.Context) {
-	usecase.CreateUser(db, c)
+	str, num, err := usecase.CreateUser(db, c)
+	if err != nil {
+		c.JSON(num, err)
+	} else {
+		c.JSON(num, str)
+	}
 }
 func GetUserHangler(db *sql.DB, c *gin.Context) {
-	usecase.GetUser(db, c)
+	str, num, err := usecase.GetUser(db, c)
+	if err != nil {
+		c.JSON(num, err)
+	} else {
+		c.JSON(num, str)
+	}
 }
 func GetUserIdHandler(db *sql.DB, c *gin.Context) {
-	usecase.GetUserId(db, c)
+	str, num, err := usecase.GetUserId(db, c)
+	if err != nil {
+		c.JSON(num, err)
+	} else {
+		c.JSON(num, str)
+	}
 }
 func UpdateUserHandler(db *sql.DB, c *gin.Context) {
-	usecase.UpdateUser(db, c)
+	str, num, err := usecase.UpdateUser(db, c)
+	if err != nil {
+		c.JSON(num, err)
+	} else {
+		c.JSON(num, str)
+	}
 }

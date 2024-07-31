@@ -8,11 +8,11 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 )
 
-func GetListReport(db *sql.DB, context *gin.Context) {
+func GetListReport(db *sql.DB, context *gin.Context) ([]domain.Report, int, error) {
 	userID := context.Query("id")
 	rows, err := db.Query("SELECT * FROM Report WHERE user_id = ?", userID)
 	if err != nil {
-		context.JSON(400, err)
+		return nil, 400, err
 	}
 	defer rows.Close()
 	var reports []domain.Report
@@ -20,20 +20,20 @@ func GetListReport(db *sql.DB, context *gin.Context) {
 		var report domain.Report
 		err := rows.Scan(&report.Id, &report.User_id, &report.Title, &report.Character_counts, &report.Style, &report.Language)
 		if err != nil {
-			context.JSON(400, err)
+			return nil, 400, err
 		}
 		reports = append(reports, report)
 	}
 
-	context.JSON(200, reports)
+	return reports, 200, nil
 }
 
-func GetReport(db *sql.DB, context *gin.Context) {
+func GetReport(db *sql.DB, context *gin.Context) ([]domain.Report, int, error) {
 
 	Id := context.Query("id")
 	rows, err := db.Query("SELECT * FROM Report WHERE id = ?", Id)
 	if err != nil {
-		context.JSON(400, err)
+		return nil, 400, err
 	}
 	defer rows.Close()
 
@@ -42,18 +42,18 @@ func GetReport(db *sql.DB, context *gin.Context) {
 		var report domain.Report
 		err := rows.Scan(&report.Id, &report.User_id, &report.Title, &report.Character_counts, &report.Style, &report.Language)
 		if err != nil {
-			context.JSON(400, err)
+			return nil, 400, err
 		}
 		reports = append(reports, report)
 	}
 
-	context.JSON(200, reports)
+	return reports, 200, nil
 }
 
-func CreateReport(db *sql.DB, context *gin.Context) {
+func CreateReport(db *sql.DB, context *gin.Context) (string, int, error) {
 	state, err := db.Prepare("INSERT INTO Report (user_id, title, character_counts, style, language) VALUES (?, ?, ?, ?, ?)")
 	if err != nil {
-		context.JSON(400, err)
+		return "", 400, err
 	}
 	defer state.Close()
 
@@ -64,15 +64,15 @@ func CreateReport(db *sql.DB, context *gin.Context) {
 	language := context.Query("language")
 	_, err = state.Exec(user_id, title, characterCounts, style, language)
 	if err != nil {
-		context.JSON(400, err)
+		return "", 400, err
 	}
-	context.JSON(200, gin.H{"message": "Report created"})
+	return "Report created", 200, nil
 }
 
-func UpdateReport(db *sql.DB, context *gin.Context) {
+func UpdateReport(db *sql.DB, context *gin.Context) (string, int, error) {
 	state, err := db.Prepare("UPDATE Report SET user_id = ?, title = ?, character_counts = ?, style = ?, language = ? WHERE id = ?")
 	if err != nil {
-		context.JSON(400, err)
+		return "", 400, err
 	}
 	defer state.Close()
 	id := context.Query("id")
@@ -84,18 +84,18 @@ func UpdateReport(db *sql.DB, context *gin.Context) {
 	_, err = state.Exec(user_id, title, character_counts, style, language, id)
 
 	if err != nil {
-		context.JSON(400, err)
+		return "", 400, err
 	}
 
-	context.JSON(200, gin.H{"message": "Report updated"})
+	return "Report created", 200, nil
 
 }
 
-func DeleteReport(db *sql.DB, context *gin.Context) {
+func DeleteReport(db *sql.DB, context *gin.Context) (string, int, error) {
 	state, err := db.Prepare("DELETE FROM Report WHERE id = ?")
 
 	if err != nil {
-		context.JSON(400, err)
+		return "", 400, err
 	}
 
 	defer state.Close()
@@ -104,8 +104,8 @@ func DeleteReport(db *sql.DB, context *gin.Context) {
 	_, err = state.Exec(Id)
 
 	if err != nil {
-		context.JSON(400, err)
+		return "", 400, err
 	}
 
-	context.JSON(200, gin.H{"message": "Report deleted"})
+	return "Report deleted", 200, nil
 }

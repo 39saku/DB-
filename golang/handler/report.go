@@ -8,17 +8,42 @@ import (
 )
 
 func GetListReportHandler(db *sql.DB, c *gin.Context) {
-	usecase.GetListReport(db, c)
+	str, num, err := usecase.GetListReport(db, c)
+	if err != nil {
+		c.JSON(num, err)
+	} else {
+		c.JSON(num, str)
+	}
 }
 func GetReportHandler(db *sql.DB, c *gin.Context) {
-	usecase.GetReport(db, c)
+	str, num, err := usecase.GetReport(db, c)
+	if err != nil {
+		c.JSON(num, err)
+	} else {
+		c.JSON(num, str)
+	}
 }
 func CreateReportHandler(db *sql.DB, c *gin.Context) {
-	usecase.CreateReport(db, c)
+	str, num, err := usecase.CreateReport(db, c)
+	if err != nil {
+		c.JSON(num, err)
+	} else {
+		c.JSON(num, str)
+	}
 }
 func UpdateReportHandler(db *sql.DB, c *gin.Context) {
-	usecase.UpdateReport(db, c)
+	str, num, err := usecase.UpdateReport(db, c)
+	if err != nil {
+		c.JSON(num, err)
+	} else {
+		c.JSON(num, str)
+	}
 }
 func DeleteReportHandler(db *sql.DB, c *gin.Context) {
-	usecase.DeleteReport(db, c)
+	str, num, err := usecase.DeleteReport(db, c)
+	if err != nil {
+		c.JSON(num, err)
+	} else {
+		c.JSON(num, str)
+	}
 }
